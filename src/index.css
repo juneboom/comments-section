@@ -1,5 +1,30 @@
-body {
+:root {
+  /* primary palette */
+  --c-moderate-blue: hsl(238, 40%, 52%);
+  --c-soft-red: hsl(358, 79%, 66%);
+  --c-grey-blue: hsl(239, 57%, 85%);
+  --c-pale-red: hsl(357, 100%, 86%);
+
+  /* neutral palette */
+  --c-dark-blue: hsl(212, 24%, 26%);
+  --c--dark-grey: hsl(211, 10%, 45%);
+  --c-light-grey: hsl(223, 19%, 93%);
+  --c-light-grey-2: hsl(228, 33%, 97%);
+  --c-white: hsl(0, 0%, 100%);
+}
+
+/* reset */
+* {
+  padding: 0;
   margin: 0;
+}
+
+/* global */
+body,
+html {
+  margin: 0;
+  font-size: 10px;
+  background-color: var(--c-light-grey);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -10,4 +35,15 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* main */
+
+.attribution {
+  font-size: 11px;
+  text-align: center;
+}
+
+.attribution a {
+  color: hsl(228, 45%, 44%);
 }
