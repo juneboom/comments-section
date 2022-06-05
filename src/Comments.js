@@ -112,7 +112,7 @@ const Comments = ({currentUser}) =>{
                                     <div className="comment-action">
                                         <button className="reply" 
                                                 aria-label="Reply to comment." 
-                                                onClick={() => setActiveComment({id: comment.id, type: "replying"})}>
+                                                onClick={() => setActiveComment({id: comment.id, type:comment.id})}>
                                                     <img src={require("./images/icon-reply.svg").default} alt="Reply icon"/>
                                                     <span>Reply</span>
                                         </button>
