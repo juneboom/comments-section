@@ -12,7 +12,7 @@ const Comments = ({currentUser}) =>{
     const isReplying = 
         activeComment && 
         activeComment.type === 'replying';
-    const comments = useFetch('http://localhost:8000/comments', pageState);
+    const comments = useFetch('https://my-json-server.typicode.com/juneboom/fake-comments-api/comments', pageState);
 
     const reRender = () => {
         setPageState(!pageState);
@@ -28,7 +28,7 @@ const Comments = ({currentUser}) =>{
             replies: []
         };
 
-        fetch('http://localhost:8000/comments', {
+        fetch('https://my-json-server.typicode.com/juneboom/fake-comments-api/comments', {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(comment)
@@ -62,7 +62,7 @@ const Comments = ({currentUser}) =>{
 
     const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this comment? This will remove the comment and can't be undone.")){
-                fetch('http://localhost:8000/comments/' + id, {
+                fetch('https://my-json-server.typicode.com/juneboom/fake-comments-api/comments' + id, {
                     method:'DELETE'
                 }).then( () =>
                     setPageState(!pageState)

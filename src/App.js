@@ -2,7 +2,7 @@ import Comments from './Comments';
 import useFetch from './useFetch';
 
 function App() {
-  const currentUser= useFetch('http://localhost:8000/currentUser');
+  const currentUser= useFetch('https://my-json-server.typicode.com/juneboom/fake-comments-api/currentUser');
   
   return (
     <div className="container">
