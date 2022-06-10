@@ -63,20 +63,6 @@
           }
         }
       ]
-    },
-    {
-      "content": "this is my new comment",
-      "createdAt": "Sat Jun 04 2022 23:12:54 GMT-0400",
-      "score": 0,
-      "user": {
-        "image": {
-          "png": "./images/avatars/image-juliusomo.png",
-          "webp": "./images/avatars/image-juliusomo.webp"
-        },
-        "username": "juliusomo"
-      },
-      "replies": [],
-      "id": 3
     }
   ]
 }

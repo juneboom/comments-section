@@ -1,16 +1,22 @@
 import {useState} from "react";
-import moment from 'moment';
 
-const CommentForm = ({currentUser, stateChanger, handleSubmit, isSending}) => {
 
-    const [newComment, setNewComment] = useState('');
-    const submitLabel = 'Send';
+const CommentForm = ({
+    currentUser, 
+    stateChanger, 
+    handleSubmit, 
+    isSending, 
+    inputLabel, 
+    submitLabel, 
+    initialText = '',
+    id}) => {
+
+    const [newComment, setNewComment] = useState(initialText);
     
 
     const onSubmit = (e) => {
         e.preventDefault();
-        const datePosted = moment().toLocaleString();
-        handleSubmit(newComment, datePosted);
+        handleSubmit(newComment, id);
         //rerender parent component
         stateChanger();
 
@@ -21,7 +27,7 @@ const CommentForm = ({currentUser, stateChanger, handleSubmit, isSending}) => {
     return ( 
         !currentUser.isPending && <div className="comment create-comment">
             <form id="comment-form" onSubmit={onSubmit}>
-                <label htmlFor="textbox">Add a comment</label>
+                <label htmlFor="textbox">{inputLabel}</label>
                 <input id="textbox"
                     type="text" 
                     placeholder="Add a comment"
@@ -32,7 +38,6 @@ const CommentForm = ({currentUser, stateChanger, handleSubmit, isSending}) => {
                 { !isSending && <button className="comment-form-button">{submitLabel}</button>}
                 { isSending && <button className="comment-form-button" disabled>{submitLabel}</button>}
             </form>
-            <p>{newComment}</p>
         </div>
      );
 }

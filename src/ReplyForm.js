@@ -1,15 +1,23 @@
 import {useState} from "react";
-import moment from 'moment';
 
-const ReplyForm = ({currentUser, replyTo, stateChanger, handleSubmit, isSending}) => {
+const ReplyForm = ({
+    currentUser, 
+    replyTo, 
+    stateChanger,
+    handleSubmit, 
+    isSending,
+    parentId,
+    submitLabel,
+    initialText='',
+    replyId}) => {
 
-    const [newComment, setNewComment] = useState('');
-    const submitLabel = 'Reply';
+    const [newComment, setNewComment] = useState(initialText);
 
     const onSubmit = (e) => {
         e.preventDefault();
-        const datePosted = moment().toLocaleString();
-        handleSubmit(newComment, datePosted, replyTo);
+        if (newComment.trim().length === 0 ) return; 
+
+        handleSubmit(newComment, replyId, "reply", parentId, replyTo);
         //rerender parent component
         stateChanger();
 
@@ -20,13 +28,17 @@ const ReplyForm = ({currentUser, replyTo, stateChanger, handleSubmit, isSending}
     return ( 
         !currentUser.isPending && <div className="comment create-comment">
             <form id="comment-form" onSubmit={onSubmit}>
-                <label htmlFor="textbox">Reply</label>
+                <label htmlFor="textbox">@{replyTo.user.username}</label>
                 <input id="textbox"
                     type="text" 
                     placeholder="Reply to this comment."
                     required
-                    value={newComment || ''}
-                    onChange={(e) => setNewComment(e.target.value)}
+                    value={`@${replyTo.user.username}, ` + newComment}
+                    onChange={(e) => 
+                        setNewComment(
+                            e.target.value.replace(`@${replyTo.user.username}, `, "")
+                        )
+                    }
                 />
                 { !isSending && <button className="comment-form-button">{submitLabel}</button>}
                 { isSending && <button className="comment-form-button" disabled>{submitLabel}</button>}

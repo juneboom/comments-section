@@ -2,33 +2,38 @@ import Replies from "./Replies";
 import CommentForm from "./CommentForm";
 import ReplyForm from "./ReplyForm";
 import CommentScore from "./CommentScore";
-import useFetch from "./useFetch";
-import {useState} from "react";
 
-const Comments = ({currentUser}) =>{  
-    const [pageState, setPageState] = useState(false);
+import {useState} from "react";
+import moment from 'moment';
+
+const Comments = ({currentUser, comments, pageState, setPageState}) =>{  
+    //const [pageState, setPageState] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [activeComment, setActiveComment] = useState(null);
     const isReplying = 
         activeComment && 
         activeComment.type === 'replying';
-    const comments = useFetch('https://my-json-server.typicode.com/juneboom/fake-comments-api/comments', pageState);
+    const isEditing = 
+        activeComment && 
+        activeComment.type === 'editing';
+    //const comments = useFetch('http://localhost:8000/comments', pageState);
 
     const reRender = () => {
         setPageState(!pageState);
     }
 
-    const addComment = (newComment, date) => {
+    const addComment = (text) => {
         setIsSending(true);
+        const date = moment().toLocaleString();
         const comment = {
-            content: newComment,
+            content: text,
             createdAt: date,
             score: 0,
             user: currentUser.data,
             replies: []
         };
 
-        fetch('https://my-json-server.typicode.com/juneboom/fake-comments-api/comments', {
+        fetch('http://localhost:8000/comments', {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(comment)
@@ -41,35 +46,120 @@ const Comments = ({currentUser}) =>{
         });
     }
 
-    const addReply = (newComment, date, replyTo) =>{
+    const addReply = (text, replyId, type, parentId, replyTo ) =>{
         setIsSending(true);
+        const date = moment().toLocaleString();
+        //find top-level/parent comment to place reply in
+        let parentComment = comments.data.filter((data) => data.id === parentId)[0];
+        let x = parentComment.replies.length;
+        let randomNum = Math.floor(Math.random() * 100); 
+        
+        //duplicate ids are still possible but for the sake of demonstration this will have to do
         const reply = {
-            content: newComment,
+            id: `${replyTo.id}-${x}-${randomNum}`,
+            content: text,
             createdAt: date,
             score: 0,
             replyingTo: replyTo.user.username,
             user: currentUser.data
         };
+        
+        console.log(reply);
+        parentComment.replies.push(reply);
 
-        //find top-level/parent comment to place reply in
-        for (let i = 0; i < comments.length; i++){
-            let entry = comments[i];
-            if (entry === replyTo){
-                entry.replies.push(reply);
+        fetch(`http://localhost:8000/comments/${parentId}`, {
+            method:'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(parentComment)
+        }).then( () =>{
+            console.log(`Added reply to comment with id ${parentId}`);
+            setPageState(!pageState);
+        }
+        ).catch( error => 
+            console.log('Could not add reply', error.message)
+        )
+        setIsSending(false);
+        setActiveComment(null);
+    }
+
+    const handleDelete = (id, type = "comment", parentId) => {
+        if (window.confirm("Are you sure you want to delete this comment? This will remove the comment and can't be undone.")){
+            if (type === "comment"){
+                fetch(`http://localhost:8000/comments/${id}`, {
+                method:'DELETE'
+                }).then( () =>{
+                    console.log('Removed comment with id ' + id);
+                    setPageState(!pageState);
+                }
+                ).catch( error => 
+                    console.log(id, error.message)
+                )
+            } else if (type === "reply"){
+                //find parent comment to delete reply from
+                comments.data.forEach((comment) => {
+                    if (comment.id === parentId){
+                        let updatedReplies = comment.replies.filter((data) => data.id !== id);
+                        comment.replies = updatedReplies;
+                        fetch(`http://localhost:8000/comments/${parentId}`, {
+                            method:'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(comment)
+                            }).then( () =>{
+                                console.log('Removed reply with id ' + id);
+                                setPageState(!pageState);
+                            }
+                            ).catch( error => 
+                                console.log(id, error.message)
+                            )
+                    }
+                })
             }
+            
         }
     }
 
-    const handleDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this comment? This will remove the comment and can't be undone.")){
-                fetch('https://my-json-server.typicode.com/juneboom/fake-comments-api/comments' + id, {
-                    method:'DELETE'
-                }).then( () =>
-                    setPageState(!pageState)
+    const updateComment = (text, id, type = "comment", parentId) => {
+        setIsSending(true);
+        console.log(id);
+        if(type === "comment"){
+            let updatedComment = comments.data.filter((data) => data.id === id)[0];
+            updatedComment.content = text;
+            fetch(`http://localhost:8000/comments/${id}`, {
+                method:'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedComment)
+                }).then( () =>{
+                    console.log('Updated comment with id ' + id);
+                    setPageState(!pageState);
+                }
                 ).catch( error => 
-                    console.log('delete', error.message)
+                    console.log(id, error.message)
                 )
-            }
+        } else if (type === "reply"){
+            //find parent comment to updade reply
+            comments.data.forEach((comment) => {
+                    if (comment.id === parentId){
+                        for (let i = 0; i< comment.replies.length; i++){
+                            if (comment.replies[i].id === id){
+                                comment.replies[i].content = text;
+                                fetch(`http://localhost:8000/comments/${parentId}`, {
+                                    method:'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(comment)
+                                    }).then( () =>{
+                                        console.log('Removed reply with id ' + id);
+                                        setPageState(!pageState);
+                                    }
+                                    ).catch( error => 
+                                        console.log(id, error.message)
+                                    )
+                            }
+                        }
+                    }
+                })
+        }
+        setIsSending(false);
+        setActiveComment(null);
     }
 
     return (
@@ -112,7 +202,7 @@ const Comments = ({currentUser}) =>{
                                     <div className="comment-action">
                                         <button className="reply" 
                                                 aria-label="Reply to comment." 
-                                                onClick={() => setActiveComment({id: comment.id, type:comment.id})}>
+                                                onClick={() => setActiveComment({id: comment.id, type:"replying"})}>
                                                     <img src={require("./images/icon-reply.svg").default} alt="Reply icon"/>
                                                     <span>Reply</span>
                                         </button>
@@ -122,19 +212,46 @@ const Comments = ({currentUser}) =>{
                         }
                         
                     </div>
-                   {comment && <CommentScore item={comment}></CommentScore>}
+                    {comment && <CommentScore item={comment}></CommentScore>}
 
-                    <div className="comment-text">
-                        {comment.content}
-                    </div>
+                    {/* {(!isEditing || activeComment.id !== comment.id) &&
+                        <div className="comment-text">
+                            {comment.content}
+                        </div>
+                    } */}
 
-                    {isReplying && activeComment.id === comment.id(
+                    {(isEditing && 
+                     activeComment.id === comment.id) 
+                        ? (  
+                            <CommentForm
+                                currentUser={currentUser}
+                                stateChanger={reRender}  
+                                handleSubmit={updateComment}
+                                isSending={isSending}
+                                inputLabel="Edit comment."
+                                submitLabel="Update"
+                                initialText={comment.content}
+                                id={comment.id}
+                            >
+                            </CommentForm>
+                        ) : (
+                            <div className="comment-text">
+                                {comment.content}
+                            </div>
+                        )
+                    }
+
+                    {isReplying && 
+                     activeComment.id === comment.id && 
+                     activeComment.id !== currentUser.data.id && (
                         <ReplyForm 
                             currentUser={currentUser}
                             replyTo={comment}
                             stateChanger={reRender}  
                             handleSubmit={addReply}
-                            isSending={isSending}>    
+                            isSending={isSending}
+                            parentId={comment.id}
+                            submitLabel="Reply">    
                         </ReplyForm>
                     )}
 
@@ -142,6 +259,15 @@ const Comments = ({currentUser}) =>{
                         parentId={comment.id}
                         replies={comment.replies}
                         currentUser={currentUser}
+                        updateComment={updateComment}
+                        handleDelete={handleDelete}
+                        addReply={addReply} 
+                        activeComment={activeComment}
+                        setActiveComment={setActiveComment}
+                        isEditing={isEditing}
+                        isReplying={isReplying}
+                        stateChanger={reRender}
+                        isSending={isSending}
                     ></Replies>
                     
                     
@@ -154,6 +280,8 @@ const Comments = ({currentUser}) =>{
                     stateChanger={reRender}  
                     handleSubmit={addComment}
                     isSending={isSending}
+                    submitLabel="Send"
+                    inputLabel="Write a comment."
                 ></CommentForm>
             }
 
