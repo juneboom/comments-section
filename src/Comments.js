@@ -6,8 +6,7 @@ import CommentScore from "./CommentScore";
 import {useState} from "react";
 import moment from 'moment';
 
-const Comments = ({currentUser, comments, pageState, setPageState}) =>{  
-    //const [pageState, setPageState] = useState(false);
+const Comments = ({currentUser, comments, setComments, pageState, setPageState}) =>{  
     const [isSending, setIsSending] = useState(false);
     const [activeComment, setActiveComment] = useState(null);
     const isReplying = 
@@ -16,7 +15,6 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
     const isEditing = 
         activeComment && 
         activeComment.type === 'editing';
-    //const comments = useFetch('http://localhost:8000/comments', pageState);
 
     const reRender = () => {
         setPageState(!pageState);
@@ -26,6 +24,7 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
         setIsSending(true);
         const date = moment().toLocaleString();
         const comment = {
+            id: `${Math.floor(Math.random() * 100)}-${Math.floor(Math.random() * 100)}`,
             content: text,
             createdAt: date,
             score: 0,
@@ -33,24 +32,16 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
             replies: []
         };
 
-        fetch('http://localhost:8000/comments', {
-            method: 'POST',
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(comment)
-        }).then(() => {
-            console.log('new comment added', comment);
-            setIsSending(false);
-        }).catch((err) => {
-            setIsSending(false);
-            console.log(err.message);
-        });
+        comments.push(comment);
+        localStorage.setItem("comments", JSON.stringify(comments));
+        setIsSending(false);
     }
 
     const addReply = (text, replyId, type, parentId, replyTo ) =>{
         setIsSending(true);
         const date = moment().toLocaleString();
         //find top-level/parent comment to place reply in
-        let parentComment = comments.data.filter((data) => data.id === parentId)[0];
+        let parentComment = comments.filter((data) => data.id === parentId)[0];
         let x = parentComment.replies.length;
         let randomNum = Math.floor(Math.random() * 100); 
         
@@ -66,55 +57,29 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
         
         console.log(reply);
         parentComment.replies.push(reply);
+        localStorage.setItem("comments", JSON.stringify(comments));
 
-        fetch(`http://localhost:8000/comments/${parentId}`, {
-            method:'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(parentComment)
-        }).then( () =>{
-            console.log(`Added reply to comment with id ${parentId}`);
-            setPageState(!pageState);
-        }
-        ).catch( error => 
-            console.log('Could not add reply', error.message)
-        )
         setIsSending(false);
         setActiveComment(null);
     }
 
     const handleDelete = (id, type = "comment", parentId) => {
+        let updatedComments = [...comments];
+        let updatedReplies = null;
         if (window.confirm("Are you sure you want to delete this comment? This will remove the comment and can't be undone.")){
             if (type === "comment"){
-                fetch(`http://localhost:8000/comments/${id}`, {
-                method:'DELETE'
-                }).then( () =>{
-                    console.log('Removed comment with id ' + id);
-                    setPageState(!pageState);
-                }
-                ).catch( error => 
-                    console.log(id, error.message)
-                )
+                updatedComments = comments.filter((data) => data.id !== id);
             } else if (type === "reply"){
                 //find parent comment to delete reply from
-                comments.data.forEach((comment) => {
+                updatedComments.forEach((comment) => {
                     if (comment.id === parentId){
-                        let updatedReplies = comment.replies.filter((data) => data.id !== id);
+                        updatedReplies = comment.replies.filter((data) => data.id !== id);
                         comment.replies = updatedReplies;
-                        fetch(`http://localhost:8000/comments/${parentId}`, {
-                            method:'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(comment)
-                            }).then( () =>{
-                                console.log('Removed reply with id ' + id);
-                                setPageState(!pageState);
-                            }
-                            ).catch( error => 
-                                console.log(id, error.message)
-                            )
                     }
-                })
+                });
             }
-            
+            setComments(updatedComments);
+            localStorage.setItem("comments", JSON.stringify(updatedComments));
         }
     }
 
@@ -122,37 +87,21 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
         setIsSending(true);
         console.log(id);
         if(type === "comment"){
-            let updatedComment = comments.data.filter((data) => data.id === id)[0];
+            let updatedComment = comments.filter((data) => data.id === id)[0];
             updatedComment.content = text;
-            fetch(`http://localhost:8000/comments/${id}`, {
-                method:'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(updatedComment)
-                }).then( () =>{
-                    console.log('Updated comment with id ' + id);
-                    setPageState(!pageState);
+            comments.forEach((data) => {
+                if (data.id === id) {
+                    data.content = text;
                 }
-                ).catch( error => 
-                    console.log(id, error.message)
-                )
+            })
+            localStorage.setItem("comments", JSON.stringify(comments));
         } else if (type === "reply"){
             //find parent comment to updade reply
-            comments.data.forEach((comment) => {
+            comments.forEach((comment) => {
                     if (comment.id === parentId){
                         for (let i = 0; i< comment.replies.length; i++){
                             if (comment.replies[i].id === id){
                                 comment.replies[i].content = text;
-                                fetch(`http://localhost:8000/comments/${parentId}`, {
-                                    method:'PUT',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify(comment)
-                                    }).then( () =>{
-                                        console.log('Removed reply with id ' + id);
-                                        setPageState(!pageState);
-                                    }
-                                    ).catch( error => 
-                                        console.log(id, error.message)
-                                    )
                             }
                         }
                     }
@@ -162,12 +111,36 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
         setActiveComment(null);
     }
 
+    const updateScore = (comment, newScore, type, parentId) => {
+        let updatedComments = [...comments];
+        if (type === "comment"){
+            updatedComments.forEach((data)=>{
+                if (data.id === comment.id){
+                    data.score = newScore;
+                }
+            })
+        } else if (type === "reply"){
+            updatedComments.forEach((parent) => {
+                if (parent.id === parentId){
+                    parent.replies.forEach((reply) => {
+                        if (reply.id === comment.id){
+                            reply.score = newScore;
+                        }
+                    })
+                }
+            })
+        }
+        localStorage.setItem("comments", JSON.stringify(updatedComments));
+        
+        setComments(updatedComments);
+    }
+
     return (
         <div className="comment-section">
             {comments.error && <div>{comments.error}</div>}
             {comments.isPending && <div>Loading...</div>}
 
-            {!comments.isPending && comments.data.map(comment => (
+            {!comments.isPending && comments.map(comment => (
                 <div className="comment" key={comment.id}>
                     <div className="comment-header">
                         <h3>{comment.user.username}</h3>
@@ -212,13 +185,13 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
                         }
                         
                     </div>
-                    {comment && <CommentScore item={comment}></CommentScore>}
 
-                    {/* {(!isEditing || activeComment.id !== comment.id) &&
-                        <div className="comment-text">
-                            {comment.content}
-                        </div>
-                    } */}
+                    {comment && 
+                    <CommentScore 
+                        comment={comment}
+                        updateScore={updateScore}
+                        type="comment">
+                    </CommentScore>}
 
                     {(isEditing && 
                      activeComment.id === comment.id) 
@@ -262,6 +235,7 @@ const Comments = ({currentUser, comments, pageState, setPageState}) =>{
                         updateComment={updateComment}
                         handleDelete={handleDelete}
                         addReply={addReply} 
+                        updateScore={updateScore}
                         activeComment={activeComment}
                         setActiveComment={setActiveComment}
                         isEditing={isEditing}

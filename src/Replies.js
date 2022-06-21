@@ -8,6 +8,7 @@ const Replies = ({
     updateComment,
     handleDelete, 
     addReply,
+    updateScore,
     activeComment, 
     setActiveComment,
     isEditing,
@@ -61,7 +62,13 @@ const Replies = ({
 
                 </div>
 
-                {reply && <CommentScore item={reply}></CommentScore>}
+                {reply && 
+                <CommentScore 
+                    comment={reply}
+                    updateScore={updateScore}
+                    type="reply"
+                    parentId={parentId}
+                ></CommentScore>}
                 
 
                 {(isEditing && 

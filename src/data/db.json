@@ -61,6 +61,20 @@
             },
             "username": "juliusomo"
           }
+        },
+        {
+          "id": "3-2-16",
+          "content": "gonna edit",
+          "createdAt": "Mon Jun 20 2022 20:51:06 GMT-0400",
+          "score": 0,
+          "replyingTo": "ramsesmiron",
+          "user": {
+            "image": {
+              "png": "./images/avatars/image-juliusomo.png",
+              "webp": "./images/avatars/image-juliusomo.webp"
+            },
+            "username": "juliusomo"
+          }
         }
       ]
     }
