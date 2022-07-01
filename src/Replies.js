@@ -19,14 +19,49 @@ const Replies = ({
 
     return (
         replies.map(reply => (
-            <div className="comment reply" key={reply.id}>
-                <div className="reply-header">
-                    <h3>{reply.user.username}</h3>
-                    <img src={require(`${reply.user.image.png}`)} className="icon" alt="author-icon"/>
-                    <span className="date">{reply.createdAt}</span>
+            <div className="comment-container">
+                <div className="comment reply" key={reply.id}>
+                    <div className="comment-header reply-header">
+                        <img src={require(`${reply.user.image.png}`)} className="icon" alt="author-icon"/>
+                        <h3>{reply.user.username}</h3>
+                        {(reply.user.username === currentUser.data.username) &&
+                                <span className="you-tag">you</span>
+                        }
+                        <span className="date">{reply.createdAt}</span>
+                    </div>
+
+                    {(isEditing && 
+                    activeComment.id === reply.id)
+                        ? (
+                        <ReplyForm
+                            currentUser={currentUser}
+                            stateChanger={stateChanger}  
+                            replyTo={reply}
+                            handleSubmit={updateComment}
+                            isSending={isSending}
+                            parentId={parentId}
+                            initialText={reply.content}
+                            replyId={reply.id}
+                            submitLabel="Update"
+                            inputLabel="Edit reply."
+                        >
+                        </ReplyForm>  
+                        ) : (
+                            <div className="comment-text">
+                                <span className="replying-to">@{reply.replyingTo} </span>{reply.content}
+                            </div>
+                        )
+                    }
 
                     {currentUser &&
                         <div className="comment-actions">
+                            {reply && 
+                            <CommentScore 
+                                comment={reply}
+                                updateScore={updateScore}
+                                type="reply"
+                                parentId={parentId}
+                            ></CommentScore>}
                             {reply.user.username === currentUser.data.username &&
                                 <>
                                     <div className="comment-action">
@@ -49,7 +84,7 @@ const Replies = ({
                             }
                             {reply.user.username !== currentUser.data.username &&
                                 <div className="comment-action">
-                                    <button className="reply" 
+                                    <button className="reply-btn" 
                                             aria-label="Reply to comment."
                                             onClick={() => setActiveComment({id: reply.id, type:"replying"})}>
                                         <img src={require("./images/icon-reply.svg").default} alt="Reply icon"/>
@@ -60,53 +95,20 @@ const Replies = ({
                         </div>
                     }
 
+                    {isReplying && 
+                    activeComment.id === reply.id && 
+                    activeComment.id !== currentUser.data.id &&(
+                        <ReplyForm
+                            currentUser={currentUser}
+                            replyTo={reply}
+                            stateChanger={stateChanger}  
+                            handleSubmit={addReply}
+                            isSending={isSending}
+                            parentId={parentId}
+                            submitLabel="Reply">
+                        </ReplyForm>
+                    )}
                 </div>
-
-                {reply && 
-                <CommentScore 
-                    comment={reply}
-                    updateScore={updateScore}
-                    type="reply"
-                    parentId={parentId}
-                ></CommentScore>}
-                
-
-                {(isEditing && 
-                 activeComment.id === reply.id)
-                    ? (
-                      <ReplyForm
-                        currentUser={currentUser}
-                        stateChanger={stateChanger}  
-                        replyTo={reply}
-                        handleSubmit={updateComment}
-                        isSending={isSending}
-                        parentId={parentId}
-                        initialText={reply.content}
-                        replyId={reply.id}
-                        submitLabel="Update"
-                        inputLabel="Edit reply."
-                      >
-                      </ReplyForm>  
-                    ) : (
-                        <div className="comment-text">
-                            <span className="replying-to">@{reply.replyingTo} </span>{reply.content}
-                        </div>
-                    )
-                }
-
-                {isReplying && 
-                 activeComment.id === reply.id && 
-                 activeComment.id !== currentUser.data.id &&(
-                     <ReplyForm
-                        currentUser={currentUser}
-                        replyTo={reply}
-                        stateChanger={stateChanger}  
-                        handleSubmit={addReply}
-                        isSending={isSending}
-                        parentId={parentId}
-                        submitLabel="Reply">
-                     </ReplyForm>
-                 )}
             </div>
         )) 
      );

@@ -26,6 +26,7 @@ const CommentForm = ({
 
     return ( 
         !currentUser.isPending && <div className="comment create-comment">
+            <img src={require(`${currentUser.data.image.png}`)} className="icon" alt="author icon" />
             <form id="comment-form" onSubmit={onSubmit}>
                 <label htmlFor="textbox">{inputLabel}</label>
                 <input id="textbox"

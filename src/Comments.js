@@ -2,6 +2,7 @@ import Replies from "./Replies";
 import CommentForm from "./CommentForm";
 import ReplyForm from "./ReplyForm";
 import CommentScore from "./CommentScore";
+import DeleteModal from "./DeleteModal";
 
 import {useState} from "react";
 import moment from 'moment';
@@ -141,14 +142,50 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
             {comments.isPending && <div>Loading...</div>}
 
             {!comments.isPending && comments.map(comment => (
-                <div className="comment" key={comment.id}>
-                    <div className="comment-header">
-                        <h3>{comment.user.username}</h3>
-                        <img src={require(`${comment.user.image.png}`)} className="icon" alt="author icon" />
-                        <span className="date">{comment.createdAt}</span>
-                        
+                <div className="comment-container">
+                    <div className="comment" key={comment.id}>
+                        <div className="comment-header">
+                            <img src={require(`${comment.user.image.png}`)} className="icon" alt="author icon" />
+                            <h3>{comment.user.username}</h3>
+
+                            {(comment.user.username === currentUser.data.username) &&
+                                <span className="you-tag">you</span>
+                            }
+
+                            <span className="date">{comment.createdAt}</span>
+                        </div>
+
+                        {(isEditing && 
+                        activeComment.id === comment.id) 
+                            ? (  
+                                <CommentForm
+                                    currentUser={currentUser}
+                                    stateChanger={reRender}  
+                                    handleSubmit={updateComment}
+                                    isSending={isSending}
+                                    inputLabel="Edit comment."
+                                    submitLabel="Update"
+                                    initialText={comment.content}
+                                    id={comment.id}
+                                >
+                                </CommentForm>
+                            ) : (
+                                <div className="comment-text">
+                                    {comment.content}
+                                </div>
+                            )
+                        }
+
+                     
                         {currentUser.data &&
                             <div className="comment-actions">
+                                {comment && 
+                                <CommentScore 
+                                    comment={comment}
+                                    updateScore={updateScore}
+                                    type="comment">
+                                </CommentScore>}
+
                                 {comment.user.username === currentUser.data.username &&
                                     <>
                                         <div className="comment-action">
@@ -173,7 +210,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                                 }
                                 {comment.user.username !== currentUser.data.username &&
                                     <div className="comment-action">
-                                        <button className="reply" 
+                                        <button className="reply-btn" 
                                                 aria-label="Reply to comment." 
                                                 onClick={() => setActiveComment({id: comment.id, type:"replying"})}>
                                                     <img src={require("./images/icon-reply.svg").default} alt="Reply icon"/>
@@ -183,68 +220,44 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                                 }
                             </div>
                         }
-                        
+
+                        {isReplying && 
+                        activeComment.id === comment.id && 
+                        activeComment.id !== currentUser.data.id && (
+                            <ReplyForm 
+                                currentUser={currentUser}
+                                replyTo={comment}
+                                stateChanger={reRender}  
+                                handleSubmit={addReply}
+                                isSending={isSending}
+                                parentId={comment.id}
+                                submitLabel="Reply">    
+                            </ReplyForm>
+                        )}
+
+
                     </div>
 
-                    {comment && 
-                    <CommentScore 
-                        comment={comment}
-                        updateScore={updateScore}
-                        type="comment">
-                    </CommentScore>}
+                    
 
-                    {(isEditing && 
-                     activeComment.id === comment.id) 
-                        ? (  
-                            <CommentForm
-                                currentUser={currentUser}
-                                stateChanger={reRender}  
-                                handleSubmit={updateComment}
-                                isSending={isSending}
-                                inputLabel="Edit comment."
-                                submitLabel="Update"
-                                initialText={comment.content}
-                                id={comment.id}
-                            >
-                            </CommentForm>
-                        ) : (
-                            <div className="comment-text">
-                                {comment.content}
-                            </div>
-                        )
-                    }
-
-                    {isReplying && 
-                     activeComment.id === comment.id && 
-                     activeComment.id !== currentUser.data.id && (
-                        <ReplyForm 
-                            currentUser={currentUser}
-                            replyTo={comment}
-                            stateChanger={reRender}  
-                            handleSubmit={addReply}
-                            isSending={isSending}
+                    
+                    <div className="reply-container">
+                        <Replies 
                             parentId={comment.id}
-                            submitLabel="Reply">    
-                        </ReplyForm>
-                    )}
-
-                    <Replies 
-                        parentId={comment.id}
-                        replies={comment.replies}
-                        currentUser={currentUser}
-                        updateComment={updateComment}
-                        handleDelete={handleDelete}
-                        addReply={addReply} 
-                        updateScore={updateScore}
-                        activeComment={activeComment}
-                        setActiveComment={setActiveComment}
-                        isEditing={isEditing}
-                        isReplying={isReplying}
-                        stateChanger={reRender}
-                        isSending={isSending}
-                    ></Replies>
-                    
-                    
+                            replies={comment.replies}
+                            currentUser={currentUser}
+                            updateComment={updateComment}
+                            handleDelete={handleDelete}
+                            addReply={addReply} 
+                            updateScore={updateScore}
+                            activeComment={activeComment}
+                            setActiveComment={setActiveComment}
+                            isEditing={isEditing}
+                            isReplying={isReplying}
+                            stateChanger={reRender}
+                            isSending={isSending}
+                        ></Replies>
+                    </div>    
                 </div>
             ))}
 

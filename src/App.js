@@ -17,7 +17,6 @@ function App() {
     <div className="container">
       {currentUser.isPending && <div>Loading...</div>}
         {!currentUser.isPending && <div className="App">
-            <h1>Comments will show here</h1>
             <Comments 
               currentUser={currentUser}
               comments={comments}
@@ -30,20 +29,6 @@ function App() {
     </div>
    
   );
-  // return (
-  //   <div className="container">
-  //       {currentUser.isPending && <div>Loading...</div>}
-  //       {!currentUser.isPending && <div className="App">
-  //           <h1>Comments will show here</h1>
-  //           {/* <Comments 
-  //             currentUser={currentUser}
-  //             comments={comments}
-  //             pageState={pageState}
-  //             setPageState={setPageState}>
-  //           </Comments> */}
-  //       </div>}
-  //   </div>
-  //  );
 }
 
 export default App;
