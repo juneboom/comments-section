@@ -3,6 +3,7 @@ import useFetch from './useFetch';
 import {useState} from "react";
 
 import data from './data/db.json';
+import {useEffect} from 'react';
 
 function App() {
   const [pageState, setPageState] = useState(false);
@@ -10,7 +11,8 @@ function App() {
     JSON.parse(localStorage.getItem("comments")) || data.comments
   );
   const currentUser= useFetch('http://localhost:8000/currentUser', pageState);
-  
+
+
   //const currentUser= useFetch('http://localhost:8000/currentUser');
 
   return (
