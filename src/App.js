@@ -10,15 +10,18 @@ function App() {
   const [comments, setComments] = useState(
     JSON.parse(localStorage.getItem("comments")) || data.comments
   );
-  const currentUser= useFetch('http://localhost:8000/currentUser', pageState);
+  const currentUser= data.currentUser;
+
+  useEffect(()=> {
+    console.log(currentUser);
+  })
 
 
-  //const currentUser= useFetch('http://localhost:8000/currentUser');
 
   return (
     <div className="container">
-      {currentUser.isPending && <div>Loading...</div>}
-        {!currentUser.isPending && <div className="App">
+      {!currentUser && <div>Loading...</div>}
+        {currentUser && <div className="App">
             <Comments 
               currentUser={currentUser}
               comments={comments}

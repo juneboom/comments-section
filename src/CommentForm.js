@@ -27,7 +27,7 @@ const CommentForm = ({
     return ( 
         !currentUser.isPending && <div className="comment create-comment">
             <div className="visible-desktop">
-                <img src={require(`${currentUser.data.image.png}`)} className="icon" alt="author icon" />
+                <img src={require(`${currentUser.image.png}`)} className="icon" alt="author icon" />
             </div>
             <textarea 
                 id="comment-form"
@@ -37,7 +37,7 @@ const CommentForm = ({
                 onChange={(e) => setNewComment(e.target.value)}>
             </textarea>
             <div className="visible-mobile send-button-container">
-                <img src={require(`${currentUser.data.image.png}`)} className="icon" alt="author icon" />
+                <img src={require(`${currentUser.image.png}`)} className="icon" alt="author icon" />
                 { !isSending && <button className="comment-form-button" onClick={onSubmit}>{submitLabel}</button>}
                 { isSending && <button className="comment-form-button" disabled>{submitLabel}</button>}
             </div>

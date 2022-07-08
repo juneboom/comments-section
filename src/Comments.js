@@ -34,7 +34,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
             content: text,
             createdAt: date,
             score: 0,
-            user: currentUser.data,
+            user: currentUser,
             replies: []
         };
 
@@ -58,7 +58,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
             createdAt: date,
             score: 0,
             replyingTo: replyTo.user.username,
-            user: currentUser.data
+            user: currentUser
         };
         
         console.log(reply);
@@ -164,14 +164,14 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                                 <img src={require(`${comment.user.image.png}`)} className="icon" alt="author icon" />
                                 <h3>{comment.user.username}</h3>
 
-                                {(comment.user.username === currentUser.data.username) &&
+                                {(comment.user.username === currentUser.username) &&
                                     <span className="you-tag">you</span>
                                 }
 
                                 <span className="date">{moment(comment.createdAt, "MMMM Do YYYY, h:mm:ss a").fromNow()}</span>
-                                {currentUser.data && 
+                                {currentUser && 
                                     <div className="visible-desktop comment-actions">
-                                        {comment.user.username === currentUser.data.username &&
+                                        {comment.user.username === currentUser.username &&
                                         <>
                                             <div className="comment-action">
                                                 <button 
@@ -193,7 +193,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                                             </div>
                                         </>    
                                         }
-                                        {comment.user.username !== currentUser.data.username &&
+                                        {comment.user.username !== currentUser.username &&
                                             <div className="comment-action">
                                                 <button 
                                                     className="reply-btn" 
@@ -230,7 +230,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                         </div>
 
                      
-                        {currentUser.data &&
+                        {currentUser &&
                             <div className="visible-mobile comment-actions">
                                 {comment && 
                                 <CommentScore 
@@ -239,7 +239,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                                     type="comment">
                                 </CommentScore>}
 
-                                {comment.user.username === currentUser.data.username &&
+                                {comment.user.username === currentUser.username &&
                                     <>
                                         <div className="comment-action">
                                             <button 
@@ -261,7 +261,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                                         </div>
                                     </>    
                                 }
-                                {comment.user.username !== currentUser.data.username &&
+                                {comment.user.username !== currentUser.username &&
                                     <div className="comment-action">
                                         <button 
                                             className="reply-btn" 
@@ -287,7 +287,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
                     </div>
                         {isReplying && 
                         activeComment.id === comment.id && 
-                        activeComment.id !== currentUser.data.id && (
+                        activeComment.id !== currentUser.id && (
                             <ReplyForm 
                                 currentUser={currentUser}
                                 replyTo={comment}

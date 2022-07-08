@@ -41,14 +41,14 @@ const Replies = ({
 
                             <img src={require(`${reply.user.image.png}`)} className="icon" alt="author-icon"/>
                             <h3>{reply.user.username}</h3>
-                            {(reply.user.username === currentUser.data.username) &&
+                            {(reply.user.username === currentUser.username) &&
                                     <span className="you-tag">you</span>
                             }
                             <span className="date">{moment(reply.createdAt, "MMMM Do YYYY, h:mm:ss a").fromNow()}</span>
                         
                             {currentUser && 
                                 <div className="visible-desktop comment-actions">
-                                    {reply.user.username === currentUser.data.username &&
+                                    {reply.user.username === currentUser.username &&
                                     <>
                                         <div className="comment-action">
                                             <button className="delete" 
@@ -69,7 +69,7 @@ const Replies = ({
                                         </div>
                                     </>    
                                 }
-                                {reply.user.username !== currentUser.data.username &&
+                                {reply.user.username !== currentUser.username &&
                                     <div className="comment-action">
                                         <button className="reply-btn" 
                                                 aria-label="Reply to comment."
@@ -120,7 +120,7 @@ const Replies = ({
                                 type="reply"
                                 parentId={parentId}
                             ></CommentScore>}
-                            {reply.user.username === currentUser.data.username &&
+                            {reply.user.username === currentUser.username &&
                                 <>
                                     <div className="comment-action">
                                         <button className="delete" 
@@ -141,7 +141,7 @@ const Replies = ({
                                     </div>
                                 </>    
                             }
-                            {reply.user.username !== currentUser.data.username &&
+                            {reply.user.username !== currentUser.username &&
                                 <div className="comment-action">
                                     <button className="reply-btn" 
                                             aria-label="Reply to comment."
@@ -169,7 +169,7 @@ const Replies = ({
                 
                     {isReplying && 
                     activeComment.id === reply.id && 
-                    activeComment.id !== currentUser.data.id &&(
+                    activeComment.id !== currentUser.id &&(
                         <ReplyForm
                             currentUser={currentUser}
                             replyTo={reply}
