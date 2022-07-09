@@ -13,9 +13,6 @@ const CommentScore = ({comment, updateScore, type, parentId}) => {
     useEffect(() => {
         window.localStorage.setItem(comment.id, JSON.stringify(vote));
         window.localStorage.setItem(`${comment.id}Outlook`, JSON.stringify(outlook));
-        console.log("voted", JSON.parse(localStorage.getItem(comment.id)));
-        console.log("outlook", JSON.parse(localStorage.getItem(`${comment.id}Outlook`)));
-        console.log(comment.score);
     }, [vote, outlook]);
 
     const handleClick = (flag) => {

@@ -60,8 +60,7 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
             replyingTo: replyTo.user.username,
             user: currentUser
         };
-        
-        console.log(reply);
+    
         parentComment.replies.push(reply);
         localStorage.setItem("comments", JSON.stringify(comments));
 
@@ -142,13 +141,12 @@ const Comments = ({currentUser, comments, setComments, pageState, setPageState})
 
     return (
         <div className="comment-section">
-            {comments.error && <div>{comments.error}</div>}
-            {comments.isPending && <div>Loading...</div>}
+            {/* {comments.error && <div>{comments.error}</div>} */}
+            {!comments && <div>Loading...</div>}
 
-            {!comments.isPending && comments.map(comment => (
-                <div className="comment-container">
-                    <div className="comment" key={comment.id}>
-
+            {comments && comments.map(comment => (
+                <div className="comment-container" key={comment.id}>
+                    <div className="comment" >
                         {comment && 
                                 <div className="visible-desktop">
                                     <CommentScore 

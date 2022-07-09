@@ -22,8 +22,8 @@ const Replies = ({
     
     return (
         replies.map(reply => (
-            <div className="comment-container">
-                <div className="comment reply" key={reply.id}>
+            <div className="comment-container" key={reply.id}>
+                <div className="comment reply" >
 
                      {reply && 
                         <div className="visible-desktop">
