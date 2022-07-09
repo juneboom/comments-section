@@ -20,7 +20,7 @@ function App() {
   return (
     <div className="container">
       {!currentUser && <div>Loading...</div>}
-        {currentUser && <div className="App">
+        {currentUser && <main className="App">
             <Comments 
               currentUser={currentUser}
               comments={comments}
@@ -29,7 +29,7 @@ function App() {
               setPageState={setPageState}
               >
             </Comments>
-        </div>}
+        </main>}
     </div>
    
   );
