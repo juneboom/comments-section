@@ -1,5 +1,4 @@
 import Comments from './Comments';
-import useFetch from './useFetch';
 import {useState} from "react";
 
 import data from './data/db.json';
